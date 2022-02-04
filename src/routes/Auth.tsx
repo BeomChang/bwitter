@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { authService } from 'fBase';
+import { authService, firebaseInstance } from 'fBase';
+import firebase from 'firebase/compat';
 
 const Auth = (): JSX.Element => {
 	const [email, setEmail] = useState<string>('');
@@ -39,13 +40,30 @@ const Auth = (): JSX.Element => {
 
 			console.log(data);
 		} catch (e: any) {
-			// console.log('[Auth onSubmit Error] ', error);
 			setError(e.message);
 		}
 	};
 
 	const toggleAccount = () => {
 		setNewAccount((prev) => !prev);
+	};
+
+	const socialClick = async (e: any) => {
+		const {
+			target: { name },
+		} = e;
+
+		let provider: any;
+		if (name === 'google') {
+			// google social login
+			provider = new firebaseInstance.auth.GoogleAuthProvider();
+		} else if (name == 'github') {
+			// github social login
+			provider = new firebaseInstance.auth.GithubAuthProvider();
+		}
+
+		const data = await authService.signInWithPopup(provider);
+		console.log('signInWithPopup data: ', data);
 	};
 
 	return (
@@ -60,8 +78,12 @@ const Auth = (): JSX.Element => {
 			<span onClick={toggleAccount}>{newAccount ? 'Sign In' : 'Create Account'}</span>
 
 			<div>
-				<button>Continue with Google</button>
-				<button>Continue with GitHub</button>
+				<button name="google" onClick={socialClick}>
+					Continue with Google
+				</button>
+				<button name="github" onClick={socialClick}>
+					Continue with GitHub
+				</button>
 			</div>
 		</div>
 	);
