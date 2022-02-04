@@ -6,6 +6,8 @@ const Auth = (): JSX.Element => {
 	const [password, setPassword] = useState<string>('');
 	const [newAccount, setNewAccount] = useState<boolean>(true);
 
+	const [error, setError] = useState<any>(null);
+
 	const onChange = (e: any) => {
 		const {
 			target: { name, value },
@@ -36,9 +38,14 @@ const Auth = (): JSX.Element => {
 			}
 
 			console.log(data);
-		} catch (error) {
-			console.log('[Auth onSubmit Error] ', error);
+		} catch (e: any) {
+			// console.log('[Auth onSubmit Error] ', error);
+			setError(e.message);
 		}
+	};
+
+	const toggleAccount = () => {
+		setNewAccount((prev) => !prev);
 	};
 
 	return (
@@ -46,8 +53,11 @@ const Auth = (): JSX.Element => {
 			<form onSubmit={onSubmit}>
 				<input name="email" type="email" placeholder="Email" value={email} onChange={onChange} required />
 				<input name="password" type="password" placeholder="Password" value={password} onChange={onChange} required />
-				<input type="submit" value={newAccount ? 'Create Account' : 'Log In'} />
+				<input type="submit" value={newAccount ? 'Create Account' : 'Sign In'} />
+				{error}
 			</form>
+
+			<span onClick={toggleAccount}>{newAccount ? 'Sign In' : 'Create Account'}</span>
 
 			<div>
 				<button>Continue with Google</button>
