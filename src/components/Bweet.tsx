@@ -47,11 +47,15 @@ const Bweet = (props: BweetProps): JSX.Element => {
 		<div>
 			{editing ? (
 				<>
-					<form onSubmit={onSubmit}>
-						<input type="text" placeholder="Edit your bweet" onChange={onChange} value={newBweet} required />
-						<input type="submit" value="Update Bweet" />
-					</form>
-					<button onClick={toggleEditing}>Cancel</button>
+					{isOwner && (
+						<>
+							<form onSubmit={onSubmit}>
+								<input type="text" placeholder="Edit your bweet" onChange={onChange} value={newBweet} required />
+								<input type="submit" value="Update Bweet" />
+							</form>
+							<button onClick={toggleEditing}>Cancel</button>
+						</>
+					)}
 				</>
 			) : (
 				<>
