@@ -1,6 +1,8 @@
 import { dbService } from 'fBase';
 import React, { useEffect, useState } from 'react';
 import firebase from 'firebase/compat';
+import { Bweets } from 'interfaces/bweets.interface';
+import Bweet from 'components/Bweet';
 
 export interface HomeProps {
 	userObj: firebase.User | null;
@@ -9,7 +11,7 @@ export interface HomeProps {
 const Home = (props: HomeProps): JSX.Element => {
 	const { userObj } = props;
 
-	const [bweet, setBweet] = useState<string>('');
+	const [bweetTxt, setBweetTxt] = useState<string>('');
 	const [bweets, setBweets] = useState<any[]>([]);
 
 	useEffect(() => {
@@ -23,12 +25,12 @@ const Home = (props: HomeProps): JSX.Element => {
 		e.preventDefault();
 
 		await dbService.collection('bweets').add({
-			text: bweet,
+			text: bweetTxt,
 			createdAt: Date.now(),
 			creatorId: userObj?.uid,
 		});
 
-		setBweet('');
+		setBweetTxt('');
 	};
 
 	const onChange = (e: any) => {
@@ -36,21 +38,19 @@ const Home = (props: HomeProps): JSX.Element => {
 			target: { value },
 		} = e;
 
-		setBweet(value);
+		setBweetTxt(value);
 	};
 
 	return (
 		<div>
 			<form onSubmit={onSubmit}>
-				<input type="text" placeholder="What's on your mind?" maxLength={120} value={bweet} onChange={onChange} />
+				<input type="text" placeholder="What's on your mind?" maxLength={120} value={bweetTxt} onChange={onChange} />
 				<input type="submit" value="Bweet" />
 			</form>
 
 			<div>
-				{bweets.map((bweet: any) => (
-					<div key={bweet.id}>
-						<h4>{bweet.text}</h4>
-					</div>
+				{bweets.map((bweet: Bweets) => (
+					<Bweet key={bweet.id} bweetObj={bweet} isOwner={bweet.creatorId === userObj?.uid} />
 				))}
 			</div>
 		</div>
