@@ -1,31 +1,31 @@
 import { dbService } from 'fBase';
 import React, { useEffect, useState } from 'react';
+import firebase from 'firebase/compat';
 
-const Home = (): JSX.Element => {
+export interface HomeProps {
+	userObj: firebase.User | null;
+}
+
+const Home = (props: HomeProps): JSX.Element => {
+	const { userObj } = props;
+
 	const [bweet, setBweet] = useState<string>('');
-	const [bweets, setBweets] = useState<string[]>([]);
-
-	const getBweets = async () => {
-		const dbBweets = await dbService.collection('bweets').get();
-		dbBweets.forEach((document: any) => {
-			const bweetObject = {
-				...document.data(),
-				id: document.id,
-			};
-			setBweets((prev: any) => [bweetObject, ...prev]);
-		});
-	};
+	const [bweets, setBweets] = useState<any[]>([]);
 
 	useEffect(() => {
-		getBweets();
+		dbService.collection('bweets').onSnapshot((snapshot) => {
+			const bweetArray = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+			setBweets(bweetArray);
+		});
 	}, []);
 
 	const onSubmit = async (e: any) => {
 		e.preventDefault();
 
 		await dbService.collection('bweets').add({
-			bweet,
+			text: bweet,
 			createdAt: Date.now(),
+			creatorId: userObj?.uid,
 		});
 
 		setBweet('');
@@ -49,7 +49,7 @@ const Home = (): JSX.Element => {
 			<div>
 				{bweets.map((bweet: any) => (
 					<div key={bweet.id}>
-						<h4>{bweet.bweet}</h4>
+						<h4>{bweet.text}</h4>
 					</div>
 				))}
 			</div>
